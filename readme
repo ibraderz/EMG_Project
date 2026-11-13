@@ -1,32 +1,32 @@
-# EMG Kontrollü Protez Kol Sistemi (Real-Time EMG Signal Processing & Prosthetic Control)
+EMG Sinyal İşleme ve Görüntüleme (Real-Time EMG Signal Processing)
 
 Bu proje; biyomedikal sinyal işleme prensipleri doğrultusunda, insan vücudundan alınan elektromiyografi (EMG) sinyallerinin donanımsal ve yazılımsal olarak işlenmesini, gerçek zamanlı (real-time) spektral analizini ve elde edilen verilerle 2 boyutlu bir protez robot kolun simüle edilerek kontrol edilmesini kapsayan uçtan uca bir mühendislik projesidir.
 
-Proje, **Ondokuz Mayıs Üniversitesi Elektrik-Elektronik Mühendisliği Bölümü** bünyesinde, **Doç. Dr. Cengiz TEPE** liderliğinde yürütülen çalışmalar kapsamında geliştirilmiş ve tam puanla başarıyla tamamlanmıştır.
+Proje, Ondokuz Mayıs Üniversitesi Elektrik-Elektronik Mühendisliği Bölümü bünyesinde, Doç. Dr. Cengiz TEPE liderliğinde yürütülen çalışmalar kapsamında geliştirilmiş ve tam puanla başarıyla tamamlanmıştır.
 
 ---
 
 ## Öne Çıkan Özellikler
 
-* **Yüksek Hızlı Gerçek Zamanlı Örnekleme:** STM32F407G-DISC1 mikrodenetleyicisi üzerinde ADC donanımı kullanılarak $f_s = 1000\text{ Hz}$ frekansta kararlı sinyal örnekleme.
-* **Sıfır Gecikmeli Seri Haberleşme:** USB to TTL (UART) dönüştürücü üzerinden $115200\text{ Baud}$ hızında tek yönlü kesintisiz veri aktarımı. Python tarafında tampon bellek (buffer) şişmesini önleyen `while` döngüsü tabanlı veri okuma mimarisi ile sıfır gecikmeli (real-time) sinyal takibi.
-* **Gelişmiş Dijital Filtreleme:** Sinyal üzerinde canlı olarak uygulanabilen Alçak Geçiren (Low-Pass), Yüksek Geçiren (High-Pass) ve Bant Geçiren (Band-Pass) 4. Dereceden Butterworth süzgeçleri.
-* **FFT (Hızlı Fourier Dönüşümü) Spektral Analiz:** $0 - 500\text{ Hz}$ frekans bandında, $\Delta f = 1\text{ Hz}$ çözünürlükle anlık spektrum analizi (Real FFT) ve arayüz donmalarını engelleyen çizim kilidi (layout lock) koruması.
-* **Dinamik Protez Kontrolü:** Sinyalin son 100 örneği üzerinden anlık RMS (Root Mean Square) değeri hesaplanarak, kullanıcı tarafından arayüzden kalibre edilen eşik (threshold) değerine göre tetiklenen robot el simülasyonu.
-* **Çevrimdışı Analiz (Offline Post-Processing):** Canlı akan sinyali CSV formatında diske kaydetme ve kaydedilen dosyaları sonradan açarak donanıma ihtiyaç duymadan filtreler ve FFT üzerinde geriye dönük analiz yapabilme.
-* **Sinyal Normalizasyonu:** Gelen verileri $[0, 1]$ aralığına ölçeklendirerek genlik bağımsız inceleme imkânı.
+* Yüksek Hızlı Gerçek Zamanlı Örnekleme: STM32F407G-DISC1 mikrodenetleyicisi üzerinde ADC donanımı kullanılarak $f_s = 1000\text{ Hz}$ frekansta kararlı sinyal örnekleme.
+* Sıfır Gecikmeli Seri Haberleşme: USB to TTL (UART) dönüştürücü üzerinden $115200\text{ Baud}$ hızında tek yönlü kesintisiz veri aktarımı. Python tarafında tampon bellek (buffer) şişmesini önleyen `while` döngüsü tabanlı veri okuma mimarisi ile sıfır gecikmeli (real-time) sinyal takibi.
+* Gelişmiş Dijital Filtreleme: Sinyal üzerinde canlı olarak uygulanabilen Alçak Geçiren (Low-Pass), Yüksek Geçiren (High-Pass) ve Bant Geçiren (Band-Pass) 4. Dereceden Butterworth süzgeçleri.
+* FFT (Hızlı Fourier Dönüşümü) Spektral Analiz: $0 - 500\text{ Hz}$ frekans bandında, $\Delta f = 1\text{ Hz}$ çözünürlükle anlık spektrum analizi (Real FFT) ve arayüz donmalarını engelleyen çizim kilidi (layout lock) koruması.
+* Dinamik Protez Kontrolü: Sinyalin son 100 örneği üzerinden anlık RMS (Root Mean Square) değeri hesaplanarak, kullanıcı tarafından arayüzden kalibre edilen eşik (threshold) değerine göre tetiklenen robot el simülasyonu.
+* Çevrimdışı Analiz (Offline Post-Processing): Canlı akan sinyali CSV formatında diske kaydetme ve kaydedilen dosyaları sonradan açarak donanıma ihtiyaç duymadan filtreler ve FFT üzerinde geriye dönük analiz yapabilme.
+* Sinyal Normalizasyonu: Gelen verileri $[0, 1]$ aralığına ölçeklendirerek genlik bağımsız inceleme imkânı.
 
 ---
 
 ## Sistem Mimarisi ve Donanım Bağlantıları
 
-Sistem; **Analog Donanım Katmanı**, **Gömülü Yazılım Katmanı (STM32)** ve **Kullanıcı Arayüzü Katmanı (Python GUI)** olmak üzere 3 ana bileşenden oluşmaktadır.
+Sistem; Analog Donanım Katmanı, Gömülü Yazılım Katmanı (STM32) ve Kullanıcı Arayüzü Katmanı (Python GUI) olmak üzere 3 ana bileşenden oluşmaktadır.
 
 ### Pinout ve Kablolama (Wiring)
-1. **EMG Devre Çıkışı (Zarf Dedektörü):** Analog devrenin zarf dedektörü çıkışı $\rightarrow$ STM32 **PA0** (`ADC_CHANNEL_0`) pinine bağlanır.
-2. **Seri Haberleşme (UART):** STM32 **PA2 (TX)** pini $\rightarrow$ USB to TTL Dönüştürücünün **RX** pinine çapraz bağlanır. *(Gömülü yazılıma komut gönderilmediği için PA3/RX hattı boşta bırakılmıştır).*
-3. **Ortak Toprak (GND):** Sinyal gürültüsünü önlemek ve referans potansiyelini eşitlemek için EMG devresinin toprağı, STM32 **GND** pini ve USB to TTL **GND** pini tek noktada birleştirilir.
-4. **Güç Beslemesi:** Analog EMG devresi $\pm 9\text{ V}$ simetrik kaynak ile beslenirken, STM32 geliştirme kartı Mini-USB kablosu üzerinden beslenir.
+1. EMG Devre Çıkışı (Zarf Dedektörü): Analog devrenin zarf dedektörü çıkışı $\rightarrow$ STM32 PA0 (`ADC_CHANNEL_0`) pinine bağlanır.
+2. Seri Haberleşme (UART): STM32 PA2 (TX) pini $\rightarrow$ USB to TTL Dönüştürücünün RX pinine çapraz bağlanır. *(Gömülü yazılıma komut gönderilmediği için PA3/RX hattı boşta bırakılmıştır).*
+3. Ortak Toprak (GND): Sinyal gürültüsünü önlemek ve referans potansiyelini eşitlemek için EMG devresinin toprağı, STM32 GND pini ve USB to TTL GND pini tek noktada birleştirilir.
+4. Güç Beslemesi: Analog EMG devresi $\pm 9\text{ V}$ simetrik kaynak ile beslenirken, STM32 geliştirme kartı Mini-USB kablosu üzerinden beslenir.
 
 ```text
 +------------------+         +--------------------+         +-------------------+
@@ -68,8 +68,8 @@ EMG-Controlled-Prosthetic-Arm/
 ## Kurulum ve Çalıştırma
 
 ### 1. Gömülü Yazılımın Yüklenmesi (Firmware)
-* `firmware/` klasöründeki projeyi **STM32CubeIDE** ile açın.
-* Projeyi derleyin (Build) ve Mini-USB kablosu üzerinden **STM32F407G-DISC1** kartına yükleyin (Flash).
+* `firmware/` klasöründeki projeyi STM32CubeIDE ile açın.
+* Projeyi derleyin (Build) ve Mini-USB kablosu üzerinden STM32F407G-DISC1 kartına yükleyin (Flash).
 
 ### 2. Python Arayüzünün Kurulumu (GUI)
 Bilgisayarınızda Python 3.8 veya üzeri bir sürümün kurulu olduğundan emin olun. Proje ana dizininde terminali açarak gerekli kütüphaneleri kurun ve arayüzü başlatın:
@@ -83,10 +83,10 @@ python gui/arayuz.py
 ```
 
 ### 3. Kullanım Adımları
-1. Uygulama açıldığında **Portları Tara** butonuna tıklayın ve USB to TTL dönüştürücünüzün bağlı olduğu COM portunu seçip **Bağlan** butonuna basın.
-2. **Başlat** butonuna bastığınızda ana ekranda gerçek zamanlı EMG sinyali akmaya başlayacaktır.
-3. **Süzgeç / Analiz** sekmesinden Alçak Geçiren (AG), Yüksek Geçiren (YG) ve Bant Geçiren (BG) filtre kesim frekanslarını güncelleyebilir, **FFT** butonu ile frekans spektrumunu inceleyebilirsiniz.
-4. **Protez Kol** sekmesine geçerek dinlenme ve kasılma genliklerinize göre **Esik (V)** değerini (varsayılan kalibre değer: `300`) ayarlayın. RMS değeri eşiği aştığında robot el otomatik olarak **KAPALI** durumuna geçecektir.
+1. Uygulama açıldığında Portları Tara butonuna tıklayın ve USB to TTL dönüştürücünüzün bağlı olduğu COM portunu seçip Bağlan butonuna basın.
+2. Başlat butonuna bastığınızda ana ekranda gerçek zamanlı EMG sinyali akmaya başlayacaktır.
+3. Süzgeç / Analiz sekmesinden Alçak Geçiren (AG), Yüksek Geçiren (YG) ve Bant Geçiren (BG) filtre kesim frekanslarını güncelleyebilir, FFT butonu ile frekans spektrumunu inceleyebilirsiniz.
+4. Protez Kol sekmesine geçerek dinlenme ve kasılma genliklerinize göre Esik (V) değerini (varsayılan kalibre değer: `300`) ayarlayın. RMS değeri eşiği aştığında robot el otomatik olarak KAPALI durumuna geçecektir.
 
 ---
 
@@ -94,19 +94,19 @@ python gui/arayuz.py
 
 | Parametre | Değeri | Teknik Açıklama |
 | :--- | :--- | :--- |
-| **Örnekleme Frekansı ($f_s$)** | $1000\text{ Hz}$ | Saniyede mikrodenetleyiciden okunan örnek sayısı |
-| **Tampon Bellek (Buffer)** | $1000\text{ Örnek}$ | Grafikte anlık görüntülenen $1\text{ saniyelik}$ zaman penceresi |
-| **Nyquist Frekans Sınırı** | $500\text{ Hz}$ | Analiz edilebilen maksimum teorik frekans bileşeni ($f_s / 2$) |
-| **FFT Çözünürlüğü ($\Delta f$)** | $1\text{ Hz}$ | Spektrum grafiğindeki ardışık iki frekans noktası arasındaki fark |
-| **FFT Dizi Uzunluğu** | $501\text{ Nokta}$ | Reel FFT (`rfft`) sonucu elde edilen pozitif frekans bileşeni sayısı |
-| **Dijital Filtre Yapısı** | 4. Derece Butterworth | Faz ve genlik kararlılığı sağlayan IIR süzgeç tasarımı |
+| Örnekleme Frekansı ($f_s$) | $1000\text{ Hz}$ | Saniyede mikrodenetleyiciden okunan örnek sayısı |
+| Tampon Bellek (Buffer) | $1000\text{ Örnek}$ | Grafikte anlık görüntülenen $1\text{ saniyelik}$ zaman penceresi |
+| Nyquist Frekans Sınırı | $500\text{ Hz}$ | Analiz edilebilen maksimum teorik frekans bileşeni ($f_s / 2$) |
+| FFT Çözünürlüğü ($\Delta f$) | $1\text{ Hz}$ | Spektrum grafiğindeki ardışık iki frekans noktası arasındaki fark |
+| FFT Dizi Uzunluğu | $501\text{ Nokta}$ | Reel FFT (`rfft`) sonucu elde edilen pozitif frekans bileşeni sayısı |
+| Dijital Filtre Yapısı | 4. Derece Butterworth | Faz ve genlik kararlılığı sağlayan IIR süzgeç tasarımı |
 
 ---
 
 ## Teşekkür ve Atıf
-Bu proje, Ondokuz Mayıs Üniversitesi Elektrik-Elektronik Mühendisliği Bölümü Biyomedikal Sinyal İşleme çalışmaları kapsamında geliştirilmiştir. Değerli akademik yönlendirmeleri ve katkılarından dolayı **Doç. Dr. Cengiz TEPE** hocamıza teşekkürlerimizi sunarız.
+Bu proje, Ondokuz Mayıs Üniversitesi Elektrik-Elektronik Mühendisliği Bölümü Biyomedikal Sinyal İşleme çalışmaları kapsamında geliştirilmiştir. Değerli akademik yönlendirmeleri ve katkılarından dolayı Doç. Dr. Cengiz TEPE hocamıza teşekkürlerimizi sunarız.
 
 ---
 
 ## Lisans
-Bu proje **MIT Lisansı** altında lisanslanmıştır. Eğitim ve araştırma amaçlı olarak serbestçe kullanılabilir ve geliştirilebilir.
+Bu proje MIT Lisansı altında lisanslanmıştır. Eğitim ve araştırma amaçlı olarak serbestçe kullanılabilir ve geliştirilebilir.
